@@ -80,7 +80,11 @@ const getProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
     try {
+        console.log(req.params, '<<< req.query');
         const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
         return res.status(200).json({ product });
     } catch (error) {
         console.error(error);
@@ -88,14 +92,17 @@ const getProductById = async (req, res) => {
     }
 };
 
+
 const updateProduct = async (req, res) => {
     try {
-
-        console.log(req.files);
-        console.log(req.body);
-
         const { id } = req.params;
         const { title, description, price, category, stock, additionalInfo } = req.body;
+
+        // Check if additionalInfo is a string, and parse it if necessary
+        let parsedAdditionalInfo = additionalInfo;
+        if (typeof additionalInfo === 'string') {
+            parsedAdditionalInfo = JSON.parse(additionalInfo);
+        }
 
         // Handle main images
         const mainImagesFiles = req.files.filter(file => file.fieldname === 'mainImages');
@@ -103,7 +110,7 @@ const updateProduct = async (req, res) => {
         const mainImages = await Promise.all(mainImagesPromises);
 
         // Handle additional info and its images
-        const additionalImagesPromises = JSON.parse(additionalInfo).map(async (info, index) => {
+        const additionalImagesPromises = parsedAdditionalInfo.map(async (info, index) => {
             const additionalImageFiles = req.files.filter(file => file.fieldname === `additionalInfo[${index}][images]`);
             const uploadedAdditionalImagesPromises = additionalImageFiles.map(file => uploadImageToCloudinary(file));
             const uploadedAdditionalImages = await Promise.all(uploadedAdditionalImagesPromises);
@@ -132,9 +139,72 @@ const updateProduct = async (req, res) => {
     }
 };
 
+const deleteProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await Product.findByIdAndDelete(id);
+        return res.status(200).json({ message: 'Product deleted successfully!', product });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const fetchProductsFiltered =  async (req, res) => {
+    try {
+        // Get filters from query parameters
+        const { category, minPrice, maxPrice, inStock, searchTerm } = req.query;
+
+        // Build the query object based on the filters
+        let query = {};
+
+        // Category filter
+        if (category) {
+            query.category = category;
+        }
+
+        // Price range filter
+        if (minPrice && maxPrice) {
+            query.price = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
+        } else if (minPrice) {
+            query.price = { $gte: parseFloat(minPrice) };
+        } else if (maxPrice) {
+            query.price = { $lte: parseFloat(maxPrice) };
+        }
+
+        // In stock filter
+        if (inStock) {
+            query.stock = { $gt: 0 };
+        }
+
+        // Search term filter (for title or description)
+        if (searchTerm) {
+            query.$or = [
+                { title: { $regex: searchTerm, $options: 'i' } },
+                { description: { $regex: searchTerm, $options: 'i' } }
+            ];
+        }
+
+        // Fetch products based on the constructed query
+        const products = await Product.find(query);
+
+        // Handle case where no products are found
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'No products found' });
+        }
+
+        // Send the found products as the response
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     addProduct,
     getProducts,
     getProductById,
     updateProduct,
+    deleteProduct,
+    fetchProductsFiltered
 };

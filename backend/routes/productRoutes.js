@@ -7,6 +7,8 @@ router.post('/addProduct', imageUpload, productController.addProduct);
 router.get('/getProducts', productController.getProducts);
 router.get('/getProductById/:id', productController.getProductById);
 router.put('/updateProduct/:id', imageUpload, productController.updateProduct);
+router.delete('/deleteProduct/:id', productController.deleteProduct);
+router.get('/fetchProductsFiltered', productController.fetchProductsFiltered);
 
 
 module.exports = router;

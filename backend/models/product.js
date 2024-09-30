@@ -26,6 +26,30 @@ const productSchema = new mongoose.Schema({
         type: [String], // Array of image URLs
         default: [],
     },
+    rating: {
+        type: Number,
+        default: 0,
+    },
+    brand: {
+        type: String,
+        required: true,
+    },
+    colors: {
+        type: [String],
+        default: [],
+    },
+    variants: [
+        {
+            variantName: {
+                type: String,
+                required: true,
+            },
+            variantValue: {
+                type: String,
+                required: true,
+            },
+        }
+    ],
     additionalInfo: [
         {
             description: {

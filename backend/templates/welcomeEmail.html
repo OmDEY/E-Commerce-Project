@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Email</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2f80ed;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .button {
+            background-color: #2f80ed;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background-color: #2178b4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to ShopEase!</h2>
+        <p>Hi {{firstName}},</p>
+        <p>Thank you for signing up. We're thrilled to have you onboard.</p>
+        <p>Start exploring our exclusive offers and products! <a href="#" class="button">Shop Now</a></p>
+        <p>Cheers,</p>
+        <p>The ShopEase Team</p>
+    </div>
+</body>
+</html>
+
