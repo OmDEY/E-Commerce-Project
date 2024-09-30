@@ -32,7 +32,7 @@ const productSchema = new mongoose.Schema({
     },
     brand: {
         type: String,
-        required: true,
+        // required: true,
     },
     colors: {
         type: [String],
@@ -42,11 +42,13 @@ const productSchema = new mongoose.Schema({
         {
             variantName: {
                 type: String,
-                required: true,
+                default: '',
+                // required: true,
             },
             variantValue: {
                 type: String,
-                required: true,
+                default: '',
+                // required: true,
             },
         }
     ],
@@ -54,7 +56,8 @@ const productSchema = new mongoose.Schema({
         {
             description: {
                 type: String,
-                required: true,
+                default: '',
+                // required: true,
             },
             images: {
                 type: [String], // Array of additional image URLs

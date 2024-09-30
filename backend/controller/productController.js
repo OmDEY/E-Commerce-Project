@@ -24,7 +24,7 @@ const uploadImageToCloudinary = (file) => {
 const addProduct = async (req, res) => {
     try {
 
-        const { title, description, price, category, stock, additionalInfo } = req.body;
+        const { title, description, price, category, stock, additionalInfo, brand } = req.body;
 
         // Handle main images
         const mainImagesFiles = req.files.filter(file => file.fieldname === 'mainImages');
@@ -33,9 +33,9 @@ const addProduct = async (req, res) => {
         const mainImages = await Promise.all(mainImagesPromises);
 
         // Handle additional info and its images
-        const additionalImagesPromises = additionalInfo.map(async (info, index) => {
-            const additionalImageFiles = req.files.filter(file => file.fieldname === `additionalInfo[${index}][images]`);
-            const uploadedAdditionalImagesPromises = additionalImageFiles.map(file => uploadImageToCloudinary(file));
+        const additionalImagesPromises = additionalInfo?.map(async (info, index) => {
+            const additionalImageFiles = req.files?.filter(file => file.fieldname === `additionalInfo[${index}][images]`);
+            const uploadedAdditionalImagesPromises = additionalImageFiles?.map(file => uploadImageToCloudinary(file));
             const uploadedAdditionalImages = await Promise.all(uploadedAdditionalImagesPromises);
             return {
                 description: info.description,
@@ -43,8 +43,11 @@ const addProduct = async (req, res) => {
             };
         });
 
-        const additionalImages = await Promise.all(additionalImagesPromises);
+        const additionalImages = '';
 
+        if(additionalImagesPromises) {
+            additionalImages = await Promise.all(additionalImagesPromises);
+        }
         // Create a new product instance
         const product = new Product({
             title,
@@ -53,7 +56,8 @@ const addProduct = async (req, res) => {
             category,
             stock,
             images: mainImages,
-            additionalInfo: additionalImages,
+            brand,
+            additionalInfo: additionalImages ? additionalImages : [],
         });
 
         // Save the product to the database
