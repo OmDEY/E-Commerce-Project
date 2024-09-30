@@ -38,19 +38,19 @@ const ProductListingPage = () => {
 
     const handleAddToCart = (productId) => {
         const token = localStorage.getItem('token'); // Assuming token is stored in localStorage
-    
-        axios.post('http://localhost:4000/api/cart/addToCart', 
-            { productId, quantity: 1 }, 
+
+        axios.post('http://localhost:4000/api/cart/addToCart',
+            { productId, quantity: 1 },
             { headers: { Authorization: `Bearer ${token}` } }
         )
-        .then(response => {
-            console.log(response.data);
-            toast.success(response?.data?.message);
-        })
-        .catch(error => {
-            console.error(error);
-            toast.error(error?.response?.data?.message);
-        });
+            .then(response => {
+                console.log(response.data);
+                toast.success(response?.data?.message);
+            })
+            .catch(error => {
+                console.error(error);
+                toast.error(error?.response?.data?.message);
+            });
     };
 
     useEffect(() => {
@@ -58,7 +58,13 @@ const ProductListingPage = () => {
         if (searchResults && searchResults.length > 0) {
             setProducts(searchResults);
         } else {
-            setProducts(DummyProducts);
+            axios.get('http://localhost:4000/api/products/getProducts')
+                .then(response => {
+                    setProducts(response.data.products);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         }
     }, [searchResults]); // Update when searchResults change
 
@@ -130,7 +136,6 @@ const ProductListingPage = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                                 {products.map((product) => (
                                     <div
-                                        onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed
                                         key={product?.id}
                                         className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
                                     >
@@ -140,19 +145,42 @@ const ProductListingPage = () => {
                                             className="w-full h-56 object-cover"
                                         />
                                         <div className="p-6">
-                                            <h3 className="text-lg font-bold mb-2">{product?.title}</h3>
-                                            <p className="text-sm text-gray-700 mb-2">{product?.description}</p>
-                                            <p className="text-xs text-gray-500 mb-2">{product?.category}</p>
-                                            <div className="flex items-center mb-4">
+                                            <h3
+                                                onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed 
+                                                className="text-lg font-bold mb-2"
+                                            >
+                                                {product?.title}
+                                            </h3>
+                                            <p
+                                                onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed
+                                                className="text-sm text-gray-700 mb-2" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                            >
+                                                {`${product?.description.substring(0, 200)}${product?.description.length > 200 ? '...' : ''}`}
+                                            </p>
+                                            <p
+                                                onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed
+                                                className="text-xs text-gray-500 mb-2"
+                                            >
+                                                {product?.category}
+                                            </p>
+                                            <div
+                                                onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed 
+                                                className="flex items-center mb-4"
+                                            >
                                                 <span className="text-yellow-500">
                                                     {'★'.repeat(Math.round(product?.rating || 0))}
                                                     {'☆'.repeat(5 - Math.round(product?.rating || 0))}
                                                 </span>
                                                 <span className="ml-2 text-gray-500">({product?.rating || 0})</span>
                                             </div>
-                                            <span className="ml-2 text-gray-500">${product?.price}</span>
+                                            <span
+                                                onClick={() => handleProductClick(product?._id)} // Make sure `product?.id` is correctly accessed 
+                                                className="ml-2 text-gray-500"
+                                            >
+                                                ${product?.price}
+                                            </span>
                                             <div className="mt-4 flex justify-between">
-                                                <button 
+                                                <button
                                                     onClick={() => handleAddToCart(product?._id)}
                                                     className="bg-green-500 w-full text-white py-2 px-2 rounded-md hover:bg-green-600 transition-transform transform hover:scale-105">
                                                     Add to Cart

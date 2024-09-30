@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { FaPlusCircle, FaTrashAlt, FaUpload } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { ClipLoader } from 'react-spinners'; // Add a loader, e.g., from react-spinners
+
 
 const AdminProductPunching = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -16,6 +18,7 @@ const AdminProductPunching = () => {
     const [variants, setVariants] = useState([]);
     const [variantName, setVariantName] = useState('');
     const [variantValue, setVariantValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleAddColor = () => {
         if (colorInput && !colors.includes(colorInput)) {
@@ -86,6 +89,7 @@ const AdminProductPunching = () => {
     };
 
     const onSubmit = async (data) => {
+        setIsLoading(true);
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('description', data.description);
@@ -122,7 +126,9 @@ const AdminProductPunching = () => {
                 setMainImages([]);
                 setCategory('');
                 setAdditionalInfo([]);
+                setIsLoading(false);
             }).catch((error) => {
+                setIsLoading(false);
                 toast.error(error?.response?.data?.message);
             });
         } catch (error) {
@@ -248,6 +254,7 @@ const AdminProductPunching = () => {
                                     <option value="electronics">Electronics</option>
                                     <option value="clothing">Clothing</option>
                                     <option value="furniture">Furniture</option>
+                                    <option value="Jwellery">Jwellery</option>
                                     {/* Add more categories as needed */}
                                 </select>
                             </div>
@@ -406,8 +413,13 @@ const AdminProductPunching = () => {
                         <button
                             type="submit"
                             className="w-full mt-6 flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                            disabled={isLoading}
                         >
-                            Add Product
+                            {isLoading ? (
+                                <ClipLoader size={20} color="#fff" loading={isLoading} />
+                            ) : (
+                                'Add Product'
+                            )}
                         </button>
                     </div>
                 </form>
