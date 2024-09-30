@@ -8,24 +8,28 @@ import axios from 'axios';
 const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [userName, setUserName] = useState('');
+    const navigate = useNavigate(); // Initialize navigate
 
     const { setSearchResults } = useContext(SearchContext);
 
-    // useEffect(() => {
-    //     if (searchTerm) {
-    //         axios.get(`http://localhost:4000/api/products/fetchProductsFiltered?searchTerm=${searchTerm}`)
-    //             .then(response => {
-    //                 setSearchResults(response.data);
-    //                 // Update the state with the fetched products
-    //             })
-    //             .catch(error => {
-    //                 setSearchResults([]);
-    //                 console.error(error);
-    //             });
-    //     }
-    // }, [searchTerm]);
+    useEffect(() => {
+        const userId = localStorage.getItem('userId');
+        if (userId) {
+            axios.get(`http://localhost:4000/api/users/getUserById/${userId}`)
+                .then(response => {
+                    // Check if the user data is coming as expected
+                    // console.log(response.data);
+                    if (response.data && response.data.firstName) {
+                        setUserName(`${response.data.firstName} ${response.data.lastName}`);
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }, []);
 
-    const navigate = useNavigate(); // Initialize navigate
 
     // Toggle the dropdown
     const toggleDropdown = () => {
@@ -105,7 +109,11 @@ const Navbar = () => {
                         <FaHeart className="cursor-pointer text-xl hover:text-pink-600 transition-colors duration-300" />
                         <span className='text-sm cursor-pointer hover:underline'>Wishlist</span>
                         <FaUser className="cursor-pointer text-xl hover:text-pink-600 transition-colors duration-300" />
-                        <span className='text-sm cursor-pointer hover:underline'>My Account</span>
+                        {!userName ? (
+                            <span className='text-sm cursor-pointer hover:underline'>My Account</span>
+                        ) : (
+                            <span className='text-sm cursor-pointer hover:underline'>{userName}</span>
+                        )}
                         <FaShoppingCart className="cursor-pointer text-xl hover:text-pink-600 transition-colors duration-300" />
                         <span className='text-sm cursor-pointer hover:underline'>Cart</span>
                     </div>

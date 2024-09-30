@@ -43,6 +43,8 @@ const AuthPage = () => {
         email,
         password
       }).then(res => {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('userId', res.data.userId);
         toast.success('Logged in successfully');
         navigate('/');
       }).catch(err => {

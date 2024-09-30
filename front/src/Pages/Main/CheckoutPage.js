@@ -1,21 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import visaIcon from './assets/visa.png'; // Assume these icons exist in the assets folder
 // import masterCardIcon from './assets/mastercard.png'; // For Mastercard
 // import productImage from './assets/product.png'; // Placeholder product image
 import { motion } from 'framer-motion'; // Import Framer Motion for animations
+import axios from 'axios';
 
 const CheckoutPage = () => {
     const [addressExists, setAddressExists] = useState(false); // Toggle between existing and new address
     const [selectedPayment, setSelectedPayment] = useState(''); // To track selected payment method
 
     const [address, setAddress] = useState({
-        line1: '',
-        line2: '',
-        pinCode: '',
+        addressLine1: '',
+        addressLine2: '',
+        postalCode: '',
         state: '',
         city: '',
         phoneNumber: '',
     });
+
+    useEffect(() => {
+        const userId = localStorage.getItem('userId');
+        axios.get(`http://localhost:4000/api/users/getUserById/${userId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        })
+            .then((response) => {
+                setAddressExists(true);
+                setAddress({
+                    addressLine1: response.data.shippingAddress.addressLine1,
+                    addressLine2: response.data.shippingAddress.addressLine2,
+                    postalCode: response.data.shippingAddress.postalCode,
+                    state: response.data.shippingAddress.state,
+                    city: response.data.shippingAddress.city,
+                    phoneNumber: response.data.phoneNumber,
+                });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, []);
 
     const handleAddressChange = (e) => {
         const { name, value } = e.target;
@@ -58,7 +82,7 @@ const CheckoutPage = () => {
                                     name="line1"
                                     placeholder="Address Line 1"
                                     className="border p-2 rounded-lg"
-                                    value={address.line1}
+                                    value={address.addressLine1}
                                     onChange={handleAddressChange}
                                 />
                                 <input
@@ -66,7 +90,7 @@ const CheckoutPage = () => {
                                     name="line2"
                                     placeholder="Address Line 2"
                                     className="border p-2 rounded-lg"
-                                    value={address.line2}
+                                    value={address.addressLine2}
                                     onChange={handleAddressChange}
                                 />
                                 <input
@@ -74,7 +98,7 @@ const CheckoutPage = () => {
                                     name="pinCode"
                                     placeholder="Pin Code"
                                     className="border p-2 rounded-lg"
-                                    value={address.pinCode}
+                                    value={address.postalCode}
                                     onChange={handleAddressChange}
                                 />
                                 <input
@@ -111,9 +135,9 @@ const CheckoutPage = () => {
                         </div>
                     ) : (
                         <div>
-                            <p className="font-semibold">{address.line1}</p>
-                            <p>{address.line2}<br />
-                                {address.city}, {address.state}, {address.pinCode}<br />
+                            <p className="font-semibold">{address.addressLine1}</p>
+                            <p>{address.addressLine2}<br />
+                                {address.city}, {address.state}, {address.postalCode}<br />
                                 {address.phoneNumber}</p>
                             <button className="text-blue-500 hover:underline mt-2">Change Address</button>
                         </div>

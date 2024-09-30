@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faStar as faSolidStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faEmptyStar } from '@fortawesome/free-regular-svg-icons';
 import BigCard from '../../Components/Main/Common/BigCard';
+import axios from 'axios';
 
 // Dummy data for cart items
 const cartItems = [
@@ -89,6 +90,25 @@ const relatedProducts = [
 const CartPage = () => {
     const [items, setItems] = useState(cartItems);
 
+
+    useEffect(() => {
+        fetchCartItems();
+    }, []);
+
+    const fetchCartItems = () => {
+        axios.get('http://localhost:4000/api/cart/getCart', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        })
+            .then((response) => {
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
     // Function to calculate total price
     const calculateTotal = () => {
         return items.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -96,7 +116,18 @@ const CartPage = () => {
 
     // Function to remove item from cart
     const removeItem = (id) => {
-        setItems(items.filter((item) => item.id !== id));
+        axios.delete(`http://localhost:4000/api/cart/deleteCartItem/${id}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        })
+            .then((response) => {
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        fetchCartItems();
     };
 
     // Function to update quantity
