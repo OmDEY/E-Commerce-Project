@@ -114,8 +114,24 @@ const Navbar = () => {
                         ) : (
                             <span className='text-sm cursor-pointer hover:underline'>{userName}</span>
                         )}
-                        <FaShoppingCart className="cursor-pointer text-xl hover:text-pink-600 transition-colors duration-300" />
-                        <span className='text-sm cursor-pointer hover:underline'>Cart</span>
+                        <FaShoppingCart
+                            onClick={() => {
+                                if (window.location.pathname !== '/cart') {
+                                    navigate(`/cart`);
+                                }
+                            }}
+                            className="cursor-pointer text-xl hover:text-pink-600 transition-colors duration-300"
+                        />
+                        <span
+                            onClick={() => {
+                                if (window.location.pathname !== '/cart') {
+                                    navigate(`/cart`);
+                                }
+                            }}
+                            className='text-sm cursor-pointer hover:underline'
+                        >
+                            Cart
+                        </span>
                     </div>
                 </div>
             </div>

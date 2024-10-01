@@ -145,7 +145,7 @@ const SingleProductDisplay = () => {
 
                     {/* Product Details */}
                     <div className="lg:ml-8 lg:w-1/2">
-                        <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+                        <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
                         <p className="text-gray-700 mb-4">{product.description}</p>
                         <p className="text-gray-700 font-semibold mb-4">Brand: {product.brand}</p>
                         <div className="flex items-center mb-4">
@@ -223,15 +223,19 @@ const SingleProductDisplay = () => {
                     </div>
                 </div>
 
-                <hr className="my-12" />
+                {product?.additionalInfo?.length > 0 ? <hr className="my-12" /> : ''}
 
                 {/* Additional Details */}
                 <div className="mt-12">
-                    <h2 className="text-2xl font-bold mb-6">More Details</h2>
-                    {product?.moreDetails?.map((detail, idx) => (
+                    {product?.additionalInfo?.length > 0 ? <h2 className="text-2xl font-bold mb-6">More Details</h2> : ''}
+                    {product?.additionalInfo?.map((detail, idx) => (
                         <div key={idx} className="mb-6">
-                            <img src={detail.image} alt={`Detail ${idx}`} className="w-full h-auto mb-4 rounded-lg" />
                             <p className="text-gray-700">{detail.description}</p>
+                            {
+                                detail.images && detail.images.map((image, idx) => (
+                                    <img src={image} alt={`Detail ${idx}`} className="w-full h-auto mb-4 rounded-lg" />
+                                ))
+                            }
                         </div>
                     ))}
                 </div>

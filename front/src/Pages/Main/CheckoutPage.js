@@ -8,6 +8,9 @@ import axios from 'axios';
 const CheckoutPage = () => {
     const [addressExists, setAddressExists] = useState(false); // Toggle between existing and new address
     const [selectedPayment, setSelectedPayment] = useState(''); // To track selected payment method
+    const [cartItems, setCartItems] = useState([]); // To track cart items
+    const [total, setTotal] = useState(0);
+
 
     const [address, setAddress] = useState({
         addressLine1: '',
@@ -17,6 +20,27 @@ const CheckoutPage = () => {
         city: '',
         phoneNumber: '',
     });
+
+    useEffect(() => {
+        fetchCartItems();
+    }, []);
+
+    const fetchCartItems = () => {
+        axios.get('http://localhost:4000/api/cart/getCart', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        })
+            .then((response) => {
+                console.log(response.data);
+                setCartItems(response.data.cart.items);
+                setTotal(response.data.cart.totalPrice);
+                // console.log(response.data.cart.items);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
 
     useEffect(() => {
         const userId = localStorage.getItem('userId');
@@ -265,24 +289,31 @@ const CheckoutPage = () => {
                 {/* Items and Order Summary */}
                 <div>
                     <h2 className="text-lg font-bold mb-4">3. Your Orders</h2>
-                    <motion.div
-                        className="flex justify-between p-4 border rounded-lg mb-2"
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
-                    >
-                        <img src={"https://m.media-amazon.com/images/I/516kq12OmmL._AC_AA100_.jpg"} alt="Product" className="w-16 h-auto rounded-lg" />
-                        <div className="flex-grow pl-4">
-                            <p className="font-bold">EvoFox Blaze Gaming Mouse</p>
-                            <p className="text-sm text-gray-600">Gaming Grade DPI Upto 12800 | RGB Lights</p>
-                            <p className="text-sm text-green-600">In Stock</p>
-                            <p className="text-sm text-gray-600">Estimated Delivery: 2-3 business days</p>
-                        </div>
-                        <div>
-                            <p className="font-semibold">$49.99</p>
-                            <p className="text-sm">Qty: 1</p>
-                        </div>
-                    </motion.div>
+                    {
+                        cartItems.length > 0 ?
+                            cartItems.map((item) => (
+                                <motion.div
+                                    className="flex justify-between p-4 border rounded-lg mb-2"
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.4 }}
+                                >
+                                    <img src={item?.product?.images[0]} alt="Product" className="w-16 h-auto rounded-lg" />
+                                    <div className="flex-grow pl-4">
+                                        <p className="font-bold">{item.product.title}</p>
+                                        <p className="text-sm text-gray-600">{item.product.description}</p>
+                                        <p className="text-sm text-green-600">{item.product.stock > 0 ? 'In Stock' : 'Out of Stock'}</p>
+                                        <p className="text-sm text-gray-600">Estimated Delivery: 2-3 business days</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold">${item.product.price}</p>
+                                        <p className="text-sm">Qty: {item.quantity}</p>
+                                    </div>
+                                </motion.div>
+                            )) :
+
+                            <p>No items in cart</p>
+                    }
                     {/* Add more products similarly */}
                 </div>
             </div>
@@ -291,9 +322,9 @@ const CheckoutPage = () => {
             <div className="col-span-1 bg-white p-6 rounded-lg shadow-lg">
                 <h2 className="text-lg font-bold mb-4">Order Summary</h2>
                 <div className="mb-4">
-                    <p className="flex justify-between"><span>Subtotal</span><span>$99.98</span></p>
+                    <p className="flex justify-between"><span>Subtotal</span><span>${total}</span></p>
                     <p className="flex justify-between border-b-2 border-gray-300 pb-4 mt-4"><span>Shipping</span><span>$5.00</span></p>
-                    <p className="flex justify-between font-semibold mt-6"><span>Total</span><span>$104.98</span></p>
+                    <p className="flex justify-between font-semibold mt-6"><span>Total</span><span>${total + 5}</span></p>
                 </div>
                 <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all">Place Order</button>
             </div>

@@ -4,6 +4,8 @@ import { faTrash, faStar as faSolidStar } from '@fortawesome/free-solid-svg-icon
 import { faStar as faEmptyStar } from '@fortawesome/free-regular-svg-icons';
 import BigCard from '../../Components/Main/Common/BigCard';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 // Dummy data for cart items
 const cartItems = [
@@ -90,6 +92,8 @@ const relatedProducts = [
 const CartPage = () => {
     const [items, setItems] = useState(cartItems);
 
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         fetchCartItems();
@@ -103,6 +107,8 @@ const CartPage = () => {
         })
             .then((response) => {
                 console.log(response.data);
+                setItems(response.data.cart.items);
+                console.log(response.data.cart.items);
             })
             .catch((error) => {
                 console.log(error);
@@ -123,16 +129,34 @@ const CartPage = () => {
         })
             .then((response) => {
                 console.log(response.data);
+                toast.success(response?.data?.message);
+                fetchCartItems();
             })
             .catch((error) => {
+                toast.error(error?.response?.data?.message);
                 console.log(error);
             });
-        fetchCartItems();
     };
 
     // Function to update quantity
     const updateQuantity = (id, newQuantity) => {
-        setItems(items.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)));
+        if (newQuantity < 1) return; // Ensure quantity does not go below 1
+        // Update the state optimistically
+        setItems(items.map((item) => (item.product._id === id ? { ...item, quantity: newQuantity } : item)));
+
+        // Make an API call to update the quantity in the backend
+        axios.put(`http://localhost:4000/api/cart/updateCartItem`, { productId: id, quantity: newQuantity }, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        })
+            .then((response) => {
+                fetchCartItems();
+            })
+            .catch((error) => {
+                toast.error("Failed to update quantity");
+                console.log(error);
+            });
     };
 
     // Function to display rating in stars and numbers
@@ -173,36 +197,36 @@ const CartPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {items.map((item) => (
-                                <tr key={item.id} className="border-b hover:bg-gray-50 transition duration-300">
+                            {items.length > 0 ? items.map((item) => (
+                                <tr key={item.product?._id} className="border-b hover:bg-gray-50 transition duration-300">
                                     {/* Product Info */}
                                     <td className="p-4 flex items-center gap-4">
-                                        <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-lg shadow-md" />
+                                        <img src={item?.product?.images[0]} alt={item?.product?.title} className="w-24 h-24 object-cover rounded-lg shadow-md" />
                                         <div>
-                                            <p className="text-lg font-semibold text-gray-900">{item.name}</p>
-                                            <p className="text-sm text-gray-600">{item.description}</p> {/* Added description */}
-                                            {displayRating(item.rating)}
-                                            <p className={item.inStock ? 'text-green-600' : 'text-red-600'}>
-                                                {item.inStock ? 'In Stock' : 'Out of Stock'}
+                                            <p className="text-lg font-semibold text-gray-900">{item?.product?.title}</p>
+                                            <p className="text-sm text-gray-600">{item?.product?.description}</p> {/* Added description */}
+                                            {displayRating(item?.product?.rating)}
+                                            <p className={item?.product?.stock > 0 ? 'text-green-600' : 'text-red-600'}>
+                                                {item?.product?.stock ? 'In Stock' : 'Out of Stock'}
                                             </p>
                                         </div>
                                     </td>
 
                                     {/* Unit Price */}
-                                    <td className="p-4 text-lg font-semibold text-gray-800">${item.price}</td>
+                                    <td className="p-4 text-lg font-semibold text-gray-800">${item?.product?.price}</td>
 
                                     {/* Quantity Selector */}
                                     <td className="p-4">
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                                onClick={() => updateQuantity(item?.product?._id, item?.quantity - 1)}
                                                 className="px-2 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
                                             >
                                                 -
                                             </button>
-                                            <span>{item.quantity}</span>
+                                            <span>{item?.quantity}</span>
                                             <button
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => updateQuantity(item?.product?._id, item?.quantity + 1)}
                                                 className="px-2 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
                                             >
                                                 +
@@ -211,19 +235,25 @@ const CartPage = () => {
                                     </td>
 
                                     {/* Subtotal */}
-                                    <td className="p-4 text-lg font-semibold text-gray-800">${item.price * item.quantity}</td>
+                                    <td className="p-4 text-lg font-semibold text-gray-800">${item?.price * item?.quantity}</td>
 
                                     {/* Remove Button */}
                                     <td className="p-4">
                                         <button
-                                            onClick={() => removeItem(item.id)}
+                                            onClick={() => removeItem(item?.product?._id)}
                                             className="text-red-600 hover:text-red-800 transition-colors duration-300"
                                         >
                                             <FontAwesomeIcon icon={faTrash} />
                                         </button>
                                     </td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan="5" className="text-center py-4">
+                                        Your cart is empty.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -259,7 +289,14 @@ const CartPage = () => {
                             </button>
                         </div>
 
-                        <button className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300">
+                        <button
+                            onClick={() => {
+                                if (window.location.pathname !== '/checkout') {
+                                    navigate('/checkout')
+                                }
+                            }}
+                            className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300"
+                        >
                             Checkout
                         </button>
                     </div>

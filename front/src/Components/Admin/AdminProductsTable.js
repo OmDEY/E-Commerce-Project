@@ -11,20 +11,21 @@ const AdminProductsTable = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [products, setProducts] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        console.log('fetching the products')
         fetchProducts();
-    }, []);
+    }, [page]);
 
     const handleProductDelete = async (productId) => {
         try {
             const response = await axios.delete(`http://localhost:4000/api/products/deleteProduct/${productId}`);
-            
+
             if (response.status === 200) {
                 toast.success('Product deleted successfully');
             }
-            
+
             fetchProducts();
         } catch (error) {
             console.error(error);
@@ -32,11 +33,20 @@ const AdminProductsTable = () => {
         }
     }
 
+    const handlePreviousPage = () => {
+        setPage(page - 1);
+    }
+
+    const handleNextPage = () => {
+        setPage(page + 1);
+    }
+
     const fetchProducts = async () => {
-        const response = await fetch('http://localhost:4000/api/products/getProducts');
+        const response = await fetch(`http://localhost:4000/api/products/getProducts?page=${page}&limit=5`);
         const data = await response.json();
         console.log(data);
         setProducts(data.products);
+        setTotalPages(Math.ceil((data.totalProducts) / 5));
     };
 
     const openModal = (product) => {
@@ -105,6 +115,29 @@ const AdminProductsTable = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-center py-6">
+                    <div className="flex items-center space-x-4">
+                        <button
+                            onClick={handlePreviousPage}
+                            disabled={page === 1}
+                            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                        >
+                            Previous
+                        </button>
+                        <p className="text-white">
+                            Page {page} of {totalPages}
+                        </p>
+                        <button
+                            onClick={handleNextPage}
+                            disabled={page === totalPages}
+                            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Modal */}
@@ -113,7 +146,7 @@ const AdminProductsTable = () => {
                     product={selectedProduct}
                     isOpen={isModalOpen}
                     onClose={closeModal}
-                    categories={['electronics', 'clothing', 'furniture']}
+                    categories={['electronics', 'clothing', 'furniture', 'jwellery']}
                 />
             )}
         </div>
