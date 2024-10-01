@@ -1,5 +1,6 @@
 const Cart = require('../models/cartSchema');
 const Product = require('../models/product');
+const mongoose = require('mongoose');
 
 const addToCart = async (req, res) => {
     try {
@@ -55,7 +56,7 @@ const addToCart = async (req, res) => {
 const getCart = async (req, res) => {
     try {
         // Assuming you get the userId from req.user (e.g., via JWT middleware)
-        const userId = req.user._id; 
+        const userId = req.user._id;
 
         // Find the cart for the user, and populate product details in the items array
         const cart = await Cart.findOne({ user: userId })
@@ -90,51 +91,64 @@ const getCart = async (req, res) => {
 
 const deleteCartItem = async (req, res) => {
     try {
-        // Assuming you get the userId from req.user (e.g., via JWT middleware)
         const userId = req.user._id;
         const productId = req.params.productId;
 
-        // Find the cart of the user
-        let cart = await Cart.findOne({ user: userId });
+        // Find the user's cart with the specific product
+        const cart = await Cart.findOne({ user: userId });
         if (!cart) {
             return res.status(404).json({ success: false, message: 'Cart not found' });
         }
 
         // Find the product in the cart items
         const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+
         if (itemIndex === -1) {
             return res.status(404).json({ success: false, message: 'Product not found in cart' });
         }
 
-        // Remove the product from the cart items
+        // Extract the item to be removed
         const removedItem = cart.items[itemIndex];
-        cart.items.splice(itemIndex, 1);
 
-        // Update total price and total items
-        cart.totalPrice -= removedItem.price * removedItem.quantity;
-        cart.totalItems -= removedItem.quantity;
+        // Now perform the update using $pull and $inc to adjust the total price and total items
+        const updatedCart = await Cart.findOneAndUpdate(
+            { user: userId },
+            {
+                $pull: { items: { product: productId } }, // Remove the product
+                $inc: {
+                    totalPrice: -(removedItem.price * removedItem.quantity), // Decrease total price
+                    totalItems: -removedItem.quantity // Decrease total items
+                }
+            },
+            { new: true } // Return the updated document
+        );
 
-        // Save the updated cart
-        await cart.save();
+        // Check if cart is empty, if so delete it
+        if (updatedCart.items.length === 0) {
+            await Cart.deleteOne({ _id: updatedCart._id });
+            return res.status(200).json({
+                success: true,
+                message: 'Cart is now empty and deleted'
+            });
+        }
 
-        // Return success response
+        // Return success response with the updated cart
         return res.status(200).json({
             success: true,
             message: 'Product removed from cart',
             cart: {
-                items: cart.items,
-                totalPrice: cart.totalPrice,
-                totalItems: cart.totalItems,
-                updatedAt: cart.updatedAt
+                items: updatedCart.items,
+                totalPrice: updatedCart.totalPrice,
+                totalItems: updatedCart.totalItems,
+                updatedAt: updatedCart.updatedAt
             }
         });
 
     } catch (error) {
-        // Handle errors
         console.error(error);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
-}
+};
 
 const updateCartItem = async (req, res) => {
     try {
@@ -154,7 +168,7 @@ const updateCartItem = async (req, res) => {
 
         // Find the user's cart
         let cart = await Cart.findOne({ user: userId });
-        
+
         if (!cart) {
             // If the cart doesn't exist, create a new one
             cart = new Cart({
@@ -177,6 +191,8 @@ const updateCartItem = async (req, res) => {
             const priceDifference = (quantity - existingItem.quantity) * product.price;
             cart.totalPrice += priceDifference;
             cart.totalItems += (quantity - existingItem.quantity);
+
+            cart.totalPrice = +cart.totalPrice.toFixed(2);
         } else {
             // If the product doesn't exist, add it as a new item
             cart.items.push({
@@ -188,7 +204,10 @@ const updateCartItem = async (req, res) => {
             // Update total price and total items
             cart.totalPrice += product.price * quantity;
             cart.totalItems += quantity;
+
+            cart.totalPrice = +cart.totalPrice.toFixed(2);
         }
+
 
         // Save the updated cart
         await cart.save();

@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.post('/addToCart', authMiddleware, addToCart)
 router.get('/getCart', authMiddleware ,getCart)
-router.delete('/deleteCartItem', authMiddleware, deleteCartItem)
+router.delete('/deleteCartItem/:productId', authMiddleware, deleteCartItem)
 router.put('/updateCartItem', authMiddleware, updateCartItem)
 
 module.exports = router

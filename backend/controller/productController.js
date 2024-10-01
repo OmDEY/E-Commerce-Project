@@ -74,8 +74,9 @@ const getProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
+        const totalProducts = await Product.countDocuments();
         const products = await Product.find().sort({ createdAt: -1 }).limit(limit).skip((page - 1) * limit);
-        return res.status(200).json({ products });
+        return res.status(200).json({ products, totalProducts });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });

@@ -16,7 +16,7 @@ async function authMiddleware(req, res, next) {
     const user = await User.findById(decoded.userId).select('-password'); // Exclude the password field
     
     if (!user) {
-      return res.status(401).json({ msg: 'User not found' });
+      return res.status(401).json({ message: 'User not found' });
     }
 
     // Attach the user object to the req object
@@ -25,7 +25,7 @@ async function authMiddleware(req, res, next) {
     // Proceed to the next middleware or route handler
     next();
   } catch (error) {
-    res.status(401).json({ msg: 'Token is not valid' });
+    res.status(401).json({ message: 'Token is not valid' });
   }
 }
 
