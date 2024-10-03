@@ -3,6 +3,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const emailQueue = require('../Queue/emailQueue');
 
+const verifyToken = (req, res) => {
+    // If the token is valid, it will reach this point
+    res.json({
+        msg: 'Token is valid',
+        user: req.user // This is the decoded token, contains user data
+    });
+};
+
 const fetchAllUsers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -43,10 +51,10 @@ const registerUser = async (req, res) => {
 
         await emailQueue.add({ email, firstName }, { removeOnComplete: true });
 
-        res.status(201).json({ 
-            msg: 'User registered successfully', 
-            userId: user._id, 
-            token 
+        res.status(201).json({
+            msg: 'User registered successfully',
+            userId: user._id,
+            token
         });
     } catch (error) {
         console.error(error);
@@ -69,7 +77,7 @@ const loginUser = async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
 
-        res.json({userId: user._id, token });
+        res.json({ userId: user._id, token });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
@@ -78,7 +86,7 @@ const loginUser = async (req, res) => {
 const captureUserData = async (req, res) => {
     try {
         const { userId, phoneNumber, addressLine1, addressLine2, city, state, postalCode, country } = req.body;
-        
+
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -121,5 +129,6 @@ module.exports = {
     registerUser,
     loginUser,
     captureUserData,
-    getUserById
+    getUserById,
+    verifyToken
 }
