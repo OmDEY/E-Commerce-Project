@@ -7,12 +7,13 @@ export const SearchContext = createContext();
 export const ContextProvider = ({ children }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   // Check for token in localStorage once when the app loads
   useEffect(() => {
     const verifyToken = async () => {
       const token = localStorage.getItem('token');
-      
+
       if (token) {
         try {
           // Send the token to the server for verification
@@ -36,13 +37,14 @@ export const ContextProvider = ({ children }) => {
         setIsAuthenticated(false); // No token, set as not authenticated
       }
 
+      setLoading(false); // Set loading to false after checking the token
     };
 
     verifyToken();
   }, []);
 
   return (
-    <SearchContext.Provider value={{ searchResults, setSearchResults, isAuthenticated, setIsAuthenticated }}>
+    <SearchContext.Provider value={{ searchResults, setSearchResults, isAuthenticated, setIsAuthenticated, loading }}>
       {children}
     </SearchContext.Provider>
   );

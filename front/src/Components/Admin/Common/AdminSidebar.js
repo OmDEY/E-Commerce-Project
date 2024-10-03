@@ -28,9 +28,9 @@ const AdminSidebar = () => {
             <FaClipboardList />
             <span>Orders</span>
           </li>
-          <li onClick={() => navigate('/admin/adminAnalytics')} className="hover:bg-gray-700 p-3 rounded-lg flex items-center gap-4 cursor-pointer">
+          <li onClick={() => navigate('/admin/adminCategoryProducts')} className="hover:bg-gray-700 p-3 rounded-lg flex items-center gap-4 cursor-pointer">
             <FaChartLine />
-            <span>Analytics</span>
+            <span>Categories</span>
           </li>
           <li onClick={() => navigate('/admin/adminSettings')} className="hover:bg-gray-700 p-3 rounded-lg flex items-center gap-4 cursor-pointer">
             <FaCog />

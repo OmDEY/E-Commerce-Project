@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { SearchContext } from '../Context/ContextProvider';
 import axios from 'axios';
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, setIsAuthenticated } = useContext(SearchContext);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const { isAuthenticated, loading, setIsAuthenticated } = useContext(SearchContext); // Get both auth state and loading state from context
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -34,14 +33,14 @@ const ProtectedRoute = ({ children }) => {
         setIsAuthenticated(false); // No token, set as not authenticated
       }
 
-      setLoading(false); // Set loading to false after checking the token
+    //   setLoading(false); // Set loading to false after checking the token
     };
 
     verifyToken();
-  }, [setIsAuthenticated]);
+  }, []);
 
   if (loading) {
-    // Optional: Render a loading spinner or placeholder until the token is checked
+    // Render a loading spinner or placeholder while token verification is in progress
     return <div>Loading...</div>;
   }
 

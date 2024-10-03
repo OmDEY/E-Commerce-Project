@@ -4,6 +4,7 @@ import ImageMagnifier from '../../Components/Main/ImageMagnifier'; // Assuming I
 import BigCard from '../../Components/Main/Common/BigCard';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 // Dummy product data
 const DummyProduct = {
@@ -78,6 +79,7 @@ const relatedProducts = [
 
 const SingleProductDisplay = () => {
     const [product, setProduct] = useState(DummyProduct);
+    const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [reviews, setReviews] = useState([
         { id: 1, name: 'John Doe', rating: 4, comment: 'Great product!' },
@@ -87,10 +89,14 @@ const SingleProductDisplay = () => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const productId = searchParams.get('productId') || ''; // Get search term from query string
-    
+
     useEffect(() => {
         console.log('productId', productId);
         console.log('searching.....', productId);
+        fetchProduct()
+    }, [productId]);
+
+    const fetchProduct = async () => {
         axios.get(`http://localhost:4000/api/products/getProductById/${productId}`)  // Use URL param
             .then(response => {
                 console.log(response.data);
@@ -100,17 +106,28 @@ const SingleProductDisplay = () => {
             .catch(error => {
                 console.error(error);
             });
-    }, [productId]);
-    
+    }
+
     const [mainImage, setMainImage] = useState(
         product?.images ? product.images[0] : ''
     );
-    
+
     const handleReviewSubmit = () => {
         if (review) {
             setReviews([...reviews, { id: reviews.length + 1, name: 'Anonymous', rating: 5, comment: review }]);
             setReview('');
         }
+        const userId = localStorage.getItem('userId');
+        axios.post(`http://localhost:4000/api/products/submitProductReview`, { userId: userId, review: review, productId: product._id, rating: rating })
+            .then(response => {
+                toast.success(response?.data?.message);
+                fetchProduct();
+                setRating(0);
+                setReview('');
+            })
+            .catch(error => {
+                toast.error(error?.response?.data?.message);
+            })
     };
 
     return (
@@ -314,9 +331,45 @@ const SingleProductDisplay = () => {
                         <p className="text-gray-500">No reviews yet.</p>
                     )}
 
-                    {/* Add Review */}
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold mb-2">Add a Review</h3>
+
+                        {/* Star Rating Section */}
+                        <div className="flex items-center mb-4">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <div key={star} className="relative">
+                                    {/* Full Star */}
+                                    <svg
+                                        onClick={() => setRating(star)} // Full star on click
+                                        onMouseEnter={() => setRating(star)} // Highlight on hover
+                                        onMouseLeave={() => setRating(0)} // Reset highlight on leave
+                                        className={`w-6 h-6 cursor-pointer ${rating >= star ? 'text-yellow-500' : 'text-gray-300'
+                                            }`}
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M12 .587l3.668 7.568 8.332 1.2-6 5.845 1.416 8.245L12 18.896l-7.416 3.895L6 13.2l-6-5.845 8.332-1.2z" />
+                                    </svg>
+
+                                    {/* Half Star */}
+                                    <svg
+                                        onClick={() => setRating(star - 0.5)} // Half star on click
+                                        onMouseEnter={() => setRating(star - 0.5)} // Highlight half star on hover
+                                        onMouseLeave={() => setRating(0)} // Reset highlight on leave
+                                        className={`absolute left-0 top-0 w-6 h-6 cursor-pointer ${rating >= star - 0.5 ? 'text-yellow-500' : 'text-gray-300'
+                                            }`}
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M12 .587l3.668 7.568 8.332 1.2-6 5.845 1.416 8.245L12 18.896l-7.416 3.895L6 13.2l-6-5.845 8.332-1.2z" />
+                                    </svg>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Review Textarea */}
                         <textarea
                             rows="4"
                             value={review}
@@ -324,7 +377,11 @@ const SingleProductDisplay = () => {
                             className="w-full p-2 border border-gray-300 rounded-lg mb-4"
                             placeholder="Write your review here..."
                         />
-                        <button onClick={handleReviewSubmit} className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+
+                        <button
+                            onClick={handleReviewSubmit}
+                            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
+                        >
                             Submit Review
                         </button>
                     </div>
