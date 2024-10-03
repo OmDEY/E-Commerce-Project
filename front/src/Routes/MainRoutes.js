@@ -14,6 +14,7 @@ import { SearchContext } from '../Context/ContextProvider';
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(SearchContext);
 
+
   return (
     <Routes>
       {/* Redirect if logged in */}

@@ -1,19 +1,43 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { SearchContext } from '../Context/ContextProvider';
+import axios from 'axios';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, setIsAuthenticated } = useContext(SearchContext);
   const [loading, setLoading] = useState(true); // Add a loading state
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true); // Set authentication if token exists
-    } else {
-      setIsAuthenticated(false);
-    }
-    setLoading(false); // Set loading to false after checking token
+    const verifyToken = async () => {
+      const token = localStorage.getItem('token');
+
+      if (token) {
+        try {
+          // Send the token to the server for verification
+          const response = await axios.get('http://localhost:4000/api/users/auth/verify-token', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          // If the token is valid, mark the user as authenticated
+          if (response.status === 200) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+          }
+        } catch (error) {
+          console.error('Token verification failed', error);
+          setIsAuthenticated(false); // Set authentication to false if token verification fails
+        }
+      } else {
+        setIsAuthenticated(false); // No token, set as not authenticated
+      }
+
+      setLoading(false); // Set loading to false after checking the token
+    };
+
+    verifyToken();
   }, [setIsAuthenticated]);
 
   if (loading) {
