@@ -3,6 +3,7 @@ const bannerImageRoutes = require('./routes/bannerImagesRoutes');
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const homePageCategoryDataUploads = require('./routes/homePageCategoryDataUploads');
 const connect = require('./config/db');
 const cors = require('cors');
 const app = express();
@@ -18,6 +19,7 @@ connect().then(() => {
     app.use('/api/products', productRoutes);
     app.use('/api/users', userRoutes);
     app.use('/api/cart', cartRoutes);
+    app.use('/api/homePageCategoryDataUploads', homePageCategoryDataUploads)
 
     app.get('/', async (req, res) => {
         res.send('Hello World');

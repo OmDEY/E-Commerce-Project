@@ -3,7 +3,7 @@ const BannerImage = require('../models/bannerImage');
 const cloudinary = require('../config/cloudinary');
 
 
-const uploadImages = async (req, res) => {
+const uploadBannerCarouselImages = async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ error: 'No files uploaded' });
@@ -55,6 +55,6 @@ const getBannerImages = async (req, res) => {
 }
 
 module.exports = {
-    uploadImages,
+    uploadBannerCarouselImages,
     getBannerImages
 }

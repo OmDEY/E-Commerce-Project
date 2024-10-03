@@ -9,6 +9,7 @@ router.get('/getProductById/:id', productController.getProductById);
 router.put('/updateProduct/:id', imageUpload, productController.updateProduct);
 router.delete('/deleteProduct/:id', productController.deleteProduct);
 router.get('/fetchProductsFiltered', productController.fetchProductsFiltered);
+router.post('/submitProductReview', productController.submitProductReview);
 
 
 module.exports = router;

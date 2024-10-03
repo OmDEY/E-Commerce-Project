@@ -1,5 +1,7 @@
 const Product = require('../models/product');
+const UserReview = require('../models/userReview'); // Adjust the path as necessary
 const cloudinary = require('../config/cloudinary');
+const mongoose = require('mongoose');
 
 const multer = require('multer');
 const upload = multer();
@@ -86,7 +88,9 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
     try {
         console.log(req.params, '<<< req.query');
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id)
+        .populate('reviews')
+        .exec();;
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
@@ -205,11 +209,37 @@ const fetchProductsFiltered =  async (req, res) => {
     }
 };
 
+const submitProductReview = async (req, res) => {
+    const { userId, productId, rating, review } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ error: 'Invalid user or product ID' });
+    }
+
+    try {
+        const newReview = new UserReview({
+            userId,
+            productId,
+            rating,
+            review,
+        });
+
+        await newReview.save();
+        const product = await Product.findById(productId);
+        product.reviews.push(newReview._id);
+        await product.save();
+        res.status(201).json(newReview);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 module.exports = {
     addProduct,
     getProducts,
     getProductById,
     updateProduct,
     deleteProduct,
-    fetchProductsFiltered
+    fetchProductsFiltered,
+    submitProductReview
 };
