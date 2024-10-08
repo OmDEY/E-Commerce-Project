@@ -203,7 +203,7 @@ const fetchProductsFiltered =  async (req, res) => {
         }
 
         // Send the found products as the response
-        res.status(200).json(products);
+        res.status(200).json({products, totalProducts: products.length} );
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
