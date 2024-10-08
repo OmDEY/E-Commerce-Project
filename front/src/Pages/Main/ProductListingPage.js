@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../../Context/ContextProvider';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { addToCart, fetchAllProducts } from '../../Apis/main';
+import { addToCart, fetchAllProducts, fetchProductsFiltered } from '../../Apis/main';
 
 // Dummy product data
 const DummyProducts = [
@@ -102,10 +102,10 @@ const ProductListingPage = () => {
 
     useEffect(() => {
         // If searchResults exist, use them; otherwise, use DummyProducts
-        fetchProductsFiltered();
+        searchProductsFiltered();
     }, [searchTerm]); // Update when searchResults change
 
-    const fetchProductsFiltered = () => {
+    const searchProductsFiltered = () => {
         // Implement your logic to fetch filtered products
         if (Object.keys(searchTerm).length > 0) {
             fetchProductsFiltered(searchTerm, page, limit)

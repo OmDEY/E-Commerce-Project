@@ -91,7 +91,7 @@ const relatedProducts = [
 ];
 
 const CartPage = () => {
-    const [items, setItems] = useState(cartItems);
+    const [items, setItems] = useState([]);
 
     const navigate = useNavigate();
 
@@ -122,8 +122,8 @@ const CartPage = () => {
         removeItemFromCart(id)
             .then((response) => {
                 console.log(response.data);
-                toast.success(response?.data?.message);
                 fetchCartItems();
+                toast.success(response?.data?.message);
             })
             .catch((error) => {
                 toast.error(error?.response?.data?.message);
@@ -186,7 +186,7 @@ const CartPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {items.length > 0 ? items.map((item) => (
+                            {items === null || items.length === 0 ? <tr><td colSpan={5}>No items in cart</td></tr> : items?.map((item) => (
                                 <tr key={item.product?._id} className="border-b hover:bg-gray-50 transition duration-300">
                                     {/* Product Info */}
                                     <td className="p-4 flex items-center gap-4">
@@ -236,13 +236,7 @@ const CartPage = () => {
                                         </button>
                                     </td>
                                 </tr>
-                            )) : (
-                                <tr>
-                                    <td colSpan="5" className="text-center py-4">
-                                        Your cart is empty.
-                                    </td>
-                                </tr>
-                            )}
+                            ))}
                         </tbody>
                     </table>
                 </div>
