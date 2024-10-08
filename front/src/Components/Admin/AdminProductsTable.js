@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import AdminEditProductModal from './AdminEditProductModal';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { adminDeleteProduct } from '../../Apis/main';
 
 // Main Table Component
 const AdminProductsTable = () => {
@@ -20,8 +21,7 @@ const AdminProductsTable = () => {
 
     const handleProductDelete = async (productId) => {
         try {
-            const response = await axios.delete(`http://localhost:4000/api/products/deleteProduct/${productId}`);
-
+            const response = adminDeleteProduct(productId);
             if (response.status === 200) {
                 toast.success('Product deleted successfully');
             }

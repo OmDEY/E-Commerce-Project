@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
 import axios from 'axios';
 import {toast} from 'react-toastify';
+import { fetchHomePageBannerCarouselImages } from '../../Apis/main';
 
 const AdminCategoryProducts = () => {
 
@@ -31,11 +32,7 @@ const AdminCategoryProducts = () => {
         });
 
         try {
-            const response = await axios.post('http://localhost:4000/api/homePageCategoryDataUploads/upload/HomePageBannerImages', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            const response = fetchHomePageBannerCarouselImages(formData);
             // setUploadMessage('Images uploaded successfully');
             toast.success(response?.data?.message);
             console.log('Uploaded Image URLs:', response.data.imageUrls); // Handle the returned image URLs

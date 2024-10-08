@@ -5,6 +5,7 @@ import BigCard from '../../Components/Main/Common/BigCard';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { fetchProductById, submitProductReview } from '../../Apis/main';
 
 // Dummy product data
 const DummyProduct = {
@@ -97,7 +98,7 @@ const SingleProductDisplay = () => {
     }, [productId]);
 
     const fetchProduct = async () => {
-        axios.get(`http://localhost:4000/api/products/getProductById/${productId}`)  // Use URL param
+        fetchProductById(productId)
             .then(response => {
                 console.log(response.data);
                 setProduct(response.data.product);  // Assuming response structure { product: ... }
@@ -118,7 +119,7 @@ const SingleProductDisplay = () => {
             setReview('');
         }
         const userId = localStorage.getItem('userId');
-        axios.post(`http://localhost:4000/api/products/submitProductReview`, { userId: userId, review: review, productId: product._id, rating: rating })
+        submitProductReview(userId, review, rating, product._id)
             .then(response => {
                 toast.success(response?.data?.message);
                 fetchProduct();

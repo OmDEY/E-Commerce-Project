@@ -5,6 +5,7 @@ import { FaPlusCircle, FaTrashAlt, FaUpload } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners'; // Add a loader, e.g., from react-spinners
+import { adminAddProduct } from '../../Apis/main';
 
 
 const AdminProductPunching = () => {
@@ -116,21 +117,18 @@ const AdminProductPunching = () => {
         });
 
         try {
-            await axios.post('http://localhost:4000/api/products/addProduct', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            }).then((response) => {
-                toast.success(response?.data?.message);
-                reset();
-                setMainImages([]);
-                setCategory('');
-                setAdditionalInfo([]);
-                setIsLoading(false);
-            }).catch((error) => {
-                setIsLoading(false);
-                toast.error(error?.response?.data?.message);
-            });
+            adminAddProduct(formData)
+                .then((response) => {
+                    toast.success(response?.data?.message);
+                    reset();
+                    setMainImages([]);
+                    setCategory('');
+                    setAdditionalInfo([]);
+                    setIsLoading(false);
+                }).catch((error) => {
+                    setIsLoading(false);
+                    toast.error(error?.response?.data?.message);
+                });
         } catch (error) {
             console.error('Error:', error);
         }

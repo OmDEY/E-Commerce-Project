@@ -1,15 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SliderComponent from 'react-slick'; // Renamed import
 import { FaEnvelope } from 'react-icons/fa';
+import axios from 'axios';
+import { fetchHomePageBannerCarouselImages } from '../../Apis/main';
 
 // Sample images for the banner
-const bannerImages = [
-  'https://t3.ftcdn.net/jpg/04/65/46/52/360_F_465465254_1pN9MGrA831idD6zIBL7q8rnZZpUCQTy.jpg',
-  'https://www.zilliondesigns.com/blog/wp-content/uploads/Perfect-Ecommerce-Sales-Banner-1280x720.jpg',
-  'https://static.vecteezy.com/system/resources/previews/006/828/785/non_2x/paper-art-shopping-online-on-smartphone-and-new-buy-sale-promotion-pink-backgroud-for-banner-market-ecommerce-women-concept-free-vector.jpg',
-];
+// const bannerImages = [
+//   'https://t3.ftcdn.net/jpg/04/65/46/52/360_F_465465254_1pN9MGrA831idD6zIBL7q8rnZZpUCQTy.jpg',
+//   'https://www.zilliondesigns.com/blog/wp-content/uploads/Perfect-Ecommerce-Sales-Banner-1280x720.jpg',
+//   'https://static.vecteezy.com/system/resources/previews/006/828/785/non_2x/paper-art-shopping-online-on-smartphone-and-new-buy-sale-promotion-pink-backgroud-for-banner-market-ecommerce-women-concept-free-vector.jpg',
+// ];
 
 const HomePageImageBanner = () => {
+
+  const [bannerImages, setBannerImages] = useState([]);
+
+  useEffect(() => {
+    fetchBannerImages();
+  }, []);
+
+  const fetchBannerImages = async () => {
+    try {
+      const response = await fetchHomePageBannerCarouselImages();
+      if(!response.data){
+        setBannerImages([]);
+        return;
+      }
+      setBannerImages(response.data[0].imageUrls);
+    } catch (error) {
+      console.error('Error fetching banner images:', error);
+    }
+  };
+
   const sliderSettings = {
     dots: true,
     infinite: true,

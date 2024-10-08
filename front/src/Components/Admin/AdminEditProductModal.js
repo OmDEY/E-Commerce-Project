@@ -5,6 +5,7 @@ import { ClipLoader } from 'react-spinners'; // Add a loader, e.g., from react-s
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Form, useForm } from 'react-hook-form';
+import { adminUpdateProduct } from '../../Apis/main';
 
 const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -74,11 +75,7 @@ const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
 
 
         try {
-            const response = await axios.put(`http://localhost:4000/api/products/updateProduct/${product._id}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            const response = adminUpdateProduct(formData, product._id);
 
             if (response.status === 200) {
                 toast.success('Product updated successfully!');

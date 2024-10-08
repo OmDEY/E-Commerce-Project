@@ -5,7 +5,7 @@ import axios from 'axios';
 export const SearchContext = createContext();
 
 export const ContextProvider = ({ children }) => {
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true); // Add loading state
 
@@ -44,7 +44,7 @@ export const ContextProvider = ({ children }) => {
   }, []);
 
   return (
-    <SearchContext.Provider value={{ searchResults, setSearchResults, isAuthenticated, setIsAuthenticated, loading }}>
+    <SearchContext.Provider value={{ searchTerm, setSearchTerm, isAuthenticated, setIsAuthenticated, loading }}>
       {children}
     </SearchContext.Provider>
   );

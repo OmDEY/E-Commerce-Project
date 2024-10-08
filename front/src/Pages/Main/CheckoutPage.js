@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 // import productImage from './assets/product.png'; // Placeholder product image
 import { motion } from 'framer-motion'; // Import Framer Motion for animations
 import axios from 'axios';
+import { fetchCart, fetchUserById } from '../../Apis/main';
 
 const CheckoutPage = () => {
     const [addressExists, setAddressExists] = useState(false); // Toggle between existing and new address
@@ -26,11 +27,7 @@ const CheckoutPage = () => {
     }, []);
 
     const fetchCartItems = () => {
-        axios.get('http://localhost:4000/api/cart/getCart', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        })
+        fetchCart()
             .then((response) => {
                 console.log(response.data);
                 setCartItems(response.data.cart.items);
@@ -44,11 +41,7 @@ const CheckoutPage = () => {
 
     useEffect(() => {
         const userId = localStorage.getItem('userId');
-        axios.get(`http://localhost:4000/api/users/getUserById/${userId}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        })
+        fetchUserById(userId)
             .then((response) => {
                 setAddressExists(true);
                 setAddress({

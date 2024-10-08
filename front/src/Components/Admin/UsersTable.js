@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FaEdit, FaPlus, FaTrash, FaSyncAlt } from 'react-icons/fa';
 import UserModal from './UserModal';
 import axios from 'axios';
+import { fetchAllUsers } from '../../Apis/main';
 
 // Sample data (In practice, fetch from API)
 const initialUsers = [
@@ -37,13 +38,13 @@ const UsersTable = () => {
 
   const fetchUsers = async () => {
     try {
-      axios.get('http://localhost:4000/api/users/fetchAllUsers')
-      .then(response => {
-        setUsers(response.data.users);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+      fetchAllUsers()
+        .then(response => {
+          setUsers(response.data.users);
+        })
+        .catch(error => {
+          console.error(error);
+        });
     } catch (error) {
       console.error('Error fetching users:', error);
     }

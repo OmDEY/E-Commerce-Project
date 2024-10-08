@@ -1,22 +1,23 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { FaHeadphones, FaUser, FaHeart, FaSyncAlt, FaShoppingCart, FaSearch, FaBars, FaMapMarkerAlt } from 'react-icons/fa';
 import './Navbar.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SearchContext } from '../../../Context/ContextProvider';
 import axios from 'axios';
+import { fetchUserById } from '../../../Apis/main';
 
 const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [productSearchTerm, setProductSearchTerm] = useState('');
     const [userName, setUserName] = useState('');
     const navigate = useNavigate(); // Initialize navigate
 
-    const { setSearchResults } = useContext(SearchContext);
+    const { setSearchTerm } = useContext(SearchContext);
 
     useEffect(() => {
         const userId = localStorage.getItem('userId');
         if (userId) {
-            axios.get(`http://localhost:4000/api/users/getUserById/${userId}`)
+            fetchUserById(userId)
                 .then(response => {
                     // Check if the user data is coming as expected
                     // console.log(response.data);
@@ -37,19 +38,9 @@ const Navbar = () => {
     };
 
     const handleProductSearch = () => {
-        if (searchTerm) {
-            axios.get(`http://localhost:4000/api/products/fetchProductsFiltered?searchTerm=${searchTerm}`)
-                .then(response => {
-                    setSearchResults(response.data);
-                    // Update the state with the fetched products
-                    if (window.location.pathname !== '/products') {
-                        navigate(`/products`);
-                    }
-                })
-                .catch(error => {
-                    setSearchResults([]);
-                    console.error(error);
-                });
+        if (productSearchTerm) {
+            setSearchTerm(productSearchTerm);
+            navigate(`/products`);
         }
     }
 
@@ -88,8 +79,8 @@ const Navbar = () => {
                     <div className="flex items-center border border-gray-300 rounded-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out w-full md:w-1/2 lg:w-1/3">
                         <input
                             type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            value={productSearchTerm}
+                            onChange={(e) => setProductSearchTerm(e.target.value)}
                             className="px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-600"
                             placeholder="Search products"
                         />
@@ -122,7 +113,7 @@ const Navbar = () => {
                             }}
                             className="cursor-pointer text-xl hover:text-pink-600 transition-colors duration-300"
                         />
-                        <span
+                        {/* <span
                             onClick={() => {
                                 if (window.location.pathname !== '/cart') {
                                     navigate(`/cart`);
@@ -131,7 +122,8 @@ const Navbar = () => {
                             className='text-sm cursor-pointer hover:underline'
                         >
                             Cart
-                        </span>
+                        </span> */}
+                        <Link to='/cart' className='text-sm cursor-pointer hover:underline'> Cart</Link>
                     </div>
                 </div>
             </div>

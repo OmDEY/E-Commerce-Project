@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { captureUserData } from '../../Apis/main';
 
 const UserDetailsPage = () => {
   const [formData, setFormData] = useState({
@@ -42,7 +43,7 @@ const UserDetailsPage = () => {
       country: formData.country,
     };
 
-    axios.post('http://localhost:4000/api/users/auth/captureUserData', userData)
+    captureUserData(userData)
       .then((response) => {
         console.log(response.data);
 

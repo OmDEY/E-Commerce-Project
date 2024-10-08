@@ -6,6 +6,7 @@ import BigCard from '../../Components/Main/Common/BigCard';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { removeItemFromCart, updateCartItem, fetchCart } from '../../Apis/main';
 
 // Dummy data for cart items
 const cartItems = [
@@ -100,11 +101,7 @@ const CartPage = () => {
     }, []);
 
     const fetchCartItems = () => {
-        axios.get('http://localhost:4000/api/cart/getCart', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        })
+        fetchCart()
             .then((response) => {
                 console.log(response.data);
                 setItems(response.data.cart.items);
@@ -122,11 +119,7 @@ const CartPage = () => {
 
     // Function to remove item from cart
     const removeItem = (id) => {
-        axios.delete(`http://localhost:4000/api/cart/deleteCartItem/${id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        })
+        removeItemFromCart(id)
             .then((response) => {
                 console.log(response.data);
                 toast.success(response?.data?.message);
@@ -145,11 +138,7 @@ const CartPage = () => {
         setItems(items.map((item) => (item.product._id === id ? { ...item, quantity: newQuantity } : item)));
 
         // Make an API call to update the quantity in the backend
-        axios.put(`http://localhost:4000/api/cart/updateCartItem`, { productId: id, quantity: newQuantity }, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        })
+        updateCartItem(id, newQuantity)
             .then((response) => {
                 fetchCartItems();
             })
