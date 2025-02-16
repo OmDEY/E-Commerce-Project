@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../../Context/ContextProvider';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { addToCart, fetchAllProducts, fetchProductsFiltered } from '../../Apis/main';
+import { addToCart, fetchAllProducts, fetchProductsFiltered } from '../../services/api';
 
 // Dummy product data
 const DummyProducts = [

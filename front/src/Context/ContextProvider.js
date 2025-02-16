@@ -1,51 +1,48 @@
+// ContextProvider.js
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { adminVerifyToken, userVerifyToken } from '../services/api';
 
-// Create a context for Search and Auth
 export const SearchContext = createContext();
 
-export const ContextProvider = ({ children }) => {
+const ContextProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Check for token in localStorage once when the app loads
   useEffect(() => {
     const verifyToken = async () => {
       const token = localStorage.getItem('token');
+      if (!token) return setLoading(false);
 
-      if (token) {
-        try {
-          // Send the token to the server for verification
-          const response = await axios.get('http://localhost:4000/api/users/auth/verify-token', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          // If the token is valid, mark the user as authenticated
-          if (response.status === 200) {
+      try {
+        const adminResponse = await adminVerifyToken(token);
+        if (adminResponse.status === 200) {
+          setIsAuthenticated(true);
+          setIsAdmin(true);
+        } else {
+          const userResponse = await userVerifyToken(token);
+          if (userResponse.status === 200) {
             setIsAuthenticated(true);
+            setIsAdmin(false);
           } else {
             setIsAuthenticated(false);
+            setIsAdmin(false);
           }
-        } catch (error) {
-          console.error('Token verification failed', error);
-          setIsAuthenticated(false); // Set authentication to false if token verification fails
         }
-      } else {
-        setIsAuthenticated(false); // No token, set as not authenticated
+      } catch {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false); // Set loading to false after checking the token
     };
-
     verifyToken();
   }, []);
 
   return (
-    <SearchContext.Provider value={{ searchTerm, setSearchTerm, isAuthenticated, setIsAuthenticated, loading }}>
-      {children}
+    <SearchContext.Provider value={{ searchTerm, setSearchTerm, isAuthenticated, setIsAuthenticated, isAdmin, setIsAdmin }}>
+      {loading ? <div>Loading...</div> : children}
     </SearchContext.Provider>
   );
 };

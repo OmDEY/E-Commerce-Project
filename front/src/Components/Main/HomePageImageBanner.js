@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SliderComponent from 'react-slick'; // Renamed import
 import { FaEnvelope } from 'react-icons/fa';
 import axios from 'axios';
-import { fetchHomePageBannerCarouselImages } from '../../Apis/main';
+import { fetchHomePageBannerCarouselImages } from '../../services/api';
 
 // Sample images for the banner
 // const bannerImages = [

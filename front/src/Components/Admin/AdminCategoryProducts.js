@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
 import axios from 'axios';
 import {toast} from 'react-toastify';
-import { fetchHomePageBannerCarouselImages } from '../../Apis/main';
+import { fetchHomePageBannerCarouselImages } from '../../services/api';
 
 const AdminCategoryProducts = () => {
 

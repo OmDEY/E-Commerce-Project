@@ -61,7 +61,7 @@ const Footer = () => {
 
             {/* Bottom Section */}
             <div className="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
-                <p>© 2024 Company Name. All rights reserved.</p>
+                <p>© 2024 ShopEase. All rights reserved.</p>
                 <p className="mt-2">Terms & Conditions | Privacy Policy</p>
             </div>
         </footer>

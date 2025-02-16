@@ -5,7 +5,8 @@ import { FaPlusCircle, FaTrashAlt, FaUpload } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners'; // Add a loader, e.g., from react-spinners
-import { adminAddProduct } from '../../Apis/main';
+import { adminAddProduct } from '../../services/api';
+import { SketchPicker } from "react-color";
 
 
 const AdminProductPunching = () => {
@@ -14,17 +15,141 @@ const AdminProductPunching = () => {
     const [category, setCategory] = useState('');
     const [brand, setBrand] = useState('');
     const [colors, setColors] = useState([]);
-    const [colorInput, setColorInput] = useState('');
+    const [colorInput, setColorInput] = useState('#000000');
     const [additionalInfo, setAdditionalInfo] = useState([]);
     const [variants, setVariants] = useState([]);
     const [variantName, setVariantName] = useState('');
     const [variantValue, setVariantValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [categoryDetails, setCategoryDetails] = useState({});
+    const [showPicker, setShowPicker] = useState(false);
+
+    const categorySelectOptions = {
+        color: ["Red", "Blue", "Green", "Black", "White"],
+        gender: ["Male", "Female", "Unisex"],
+        type: ["Sneakers", "Boots", "Sandals"],
+        sportType: ["Running", "Cycling", "Swimming"],
+        vehicleType: ["Car", "Motorcycle", "Truck"],
+    };
+
+    const categoryFieldTypes = {
+        // Common fields
+        size: "text",  // Free text input
+        material: "text", // Free text input
+        warranty: "number", // Numeric input
+        brand: "text", // Free text input
+        color: "select", // Dropdown
+        availability: "radio", // Radio buttons
+        isReturnable: "checkbox", // Checkbox
+
+        // Electronics & Gadgets
+        batteryLife: "text", // Free text input
+        processor: "text", // Free text input
+
+        // Clothing & Apparel
+        gender: "select", // Dropdown
+
+        // Footwear
+        soleMaterial: "text", // Free text input
+        type: "select", // Dropdown
+
+        // Beauty & Personal Care
+        skinType: "text", // Free text input
+        ingredients: "text", // Free text input
+        expirationDate: "date", // Date input
+
+        // Home & Kitchen
+        dimensions: "text", // Free text input
+        weight: "number", // Numeric input
+
+        // Books & Stationery
+        author: "text", // Free text input
+        publisher: "text", // Free text input
+        pages: "number", // Numeric input
+
+        // Grocery & Food
+        weight: "number", // Numeric input
+        ingredients: "text", // Free text input
+
+        // Sports & Fitness
+        sportType: "select", // Dropdown
+
+        // Toys & Baby Products
+        ageRange: "text", // Free text input
+        safetyStandards: "text", // Free text input
+
+        // Automotive & Accessories
+        vehicleType: "select", // Dropdown
+        compatibility: "text", // Free text input
+
+        // Jewelry & Watches
+        gemstone: "text", // Free text input
+        waterResistance: "text", // Free text input
+
+        // Healthcare & Wellness
+        benefits: "text", // Free text input
+        usage: "text", // Free text input
+    };
+
+
+    const handleCategoryChange = (e) => {
+        const selectedCategory = e.target.value;
+        setCategory(selectedCategory);
+
+        // Define extra fields for different categories
+        let extraFields = {};
+
+        switch (selectedCategory) {
+            case "Electronics & Gadgets":
+                extraFields = { warranty: "", batteryLife: "", processor: "" };
+                break;
+            case "Clothing & Apparel":
+                extraFields = { size: "", material: "", gender: "" };
+                break;
+            case "Footwear":
+                extraFields = { size: "", soleMaterial: "", type: "" };
+                break;
+            case "Beauty & Personal Care":
+                extraFields = { skinType: "", ingredients: "", expirationDate: "" };
+                break;
+            case "Home & Kitchen":
+                extraFields = { dimensions: "", weight: "", material: "" };
+                break;
+            case "Books & Stationery":
+                extraFields = { author: "", publisher: "", pages: "" };
+                break;
+            case "Grocery & Food":
+                extraFields = { expirationDate: "", weight: "", ingredients: "" };
+                break;
+            case "Sports & Fitness":
+                extraFields = { sportType: "", weight: "", material: "" };
+                break;
+            case "Toys & Baby Products":
+                extraFields = { ageRange: "", safetyStandards: "", material: "" };
+                break;
+            case "Automotive & Accessories":
+                extraFields = { vehicleType: "", compatibility: "", warranty: "" };
+                break;
+            case "Jewelry & Watches":
+                extraFields = { material: "", gemstone: "", waterResistance: "" };
+                break;
+            case "Healthcare & Wellness":
+                extraFields = { expirationDate: "", benefits: "", usage: "" };
+                break;
+            default:
+                extraFields = {};
+        }
+
+        setCategoryDetails(extraFields);
+    };
+
+    const handleCategoryDetailChange = (e, key) => {
+        setCategoryDetails({ ...categoryDetails, [key]: e.target.value });
+    };
 
     const handleAddColor = () => {
         if (colorInput && !colors.includes(colorInput)) {
             setColors([...colors, colorInput]);
-            setColorInput('');
         }
     };
 
@@ -99,6 +224,11 @@ const AdminProductPunching = () => {
         formData.append('stock', data.stock);
         formData.append('brand', brand);
         formData.append('colors', JSON.stringify(colors));
+
+        // Add category-specific details
+        Object.keys(categoryDetails).forEach((key) => {
+            formData.append(`categoryDetails[${key}]`, categoryDetails[key]);
+        });
 
         variants.forEach((variant, index) => {
             formData.append(`variants[${index}][variantName]`, variant.variantName);
@@ -190,26 +320,38 @@ const AdminProductPunching = () => {
                             {/* Colors */}
                             <div>
                                 <label className="block text-gray-300 font-semibold">Colors</label>
-                                <div className="flex items-center">
-                                    <input
-                                        type="text"
-                                        value={colorInput}
-                                        onChange={(e) => setColorInput(e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter a color"
-                                    />
+                                <div className="flex items-center space-x-2">
+                                    <div className="relative">
+                                        <button
+                                            type="button"
+                                            className="w-10 h-10 rounded-full border-2 border-gray-400"
+                                            style={{ backgroundColor: colorInput }}
+                                            onClick={() => setShowPicker(!showPicker)}
+                                        />
+                                        {showPicker && (
+                                            <div className="absolute z-10 mt-2">
+                                                <SketchPicker
+                                                    color={colorInput}
+                                                    onChangeComplete={(color) => setColorInput(color.hex)}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <button
                                         type="button"
                                         onClick={handleAddColor}
-                                        className="ml-2 bg-blue-500 text-white rounded-lg px-4 hover:bg-blue-600 transition"
+                                        className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 transition"
                                     >
                                         Add
                                     </button>
                                 </div>
+
+                                {/* Display Selected Colors */}
                                 <div className="mt-2 flex flex-wrap">
                                     {colors.map((color, index) => (
-                                        <span key={index} className="bg-gray-600 text-white px-3 py-1 rounded-full mr-2 flex items-center">
-                                            {color}
+                                        <span key={index} className="flex items-center px-3 py-1 rounded-full mr-2" style={{ backgroundColor: color }}>
+                                            <span className="text-white">{color}</span>
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveColor(index)}
@@ -243,19 +385,117 @@ const AdminProductPunching = () => {
                             {/* Categories Dropdown */}
                             <div>
                                 <label className="block text-gray-300 font-semibold">Category</label>
-                                <select
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
+                                <select value={category} onChange={handleCategoryChange} className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white">
                                     <option value="">Select a category</option>
-                                    <option value="electronics">Electronics</option>
-                                    <option value="clothing">Clothing</option>
-                                    <option value="furniture">Furniture</option>
-                                    <option value="Jwellery">Jwellery</option>
-                                    {/* Add more categories as needed */}
+                                    <option value="Electronics & Gadgets">Electronics & Gadgets</option>
+                                    <option value="Clothing & Apparel">Clothing & Apparel</option>
+                                    <option value="Footwear">Footwear</option>
+                                    <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+                                    <option value="Home & Kitchen">Home & Kitchen</option>
+                                    <option value="Books & Stationery">Books & Stationery</option>
+                                    <option value="Grocery & Food">Grocery & Food</option>
+                                    <option value="Sports & Fitness">Sports & Fitness</option>
+                                    <option value="Toys & Baby Products">Toys & Baby Products</option>
+                                    <option value="Automotive & Accessories">Automotive & Accessories</option>
+                                    <option value="Jewelry & Watches">Jewelry & Watches</option>
+                                    <option value="Healthcare & Wellness">Healthcare & Wellness</option>
                                 </select>
                             </div>
+
+                            {/* Render category-specific fields */}
+                            {Object.keys(categoryDetails).length > 0 && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    {Object.keys(categoryDetails).map((key) => (
+                                        <div key={key} className="mb-3">
+                                            <label className="block text-gray-300 font-semibold">{key}</label>
+
+                                            {categoryFieldTypes[key] === "text" && (
+                                                <input
+                                                    type="text"
+                                                    className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    value={categoryDetails[key] || ""}
+                                                    onChange={(e) => handleCategoryDetailChange(e, key)}
+                                                    placeholder={`Enter ${key}`}
+                                                />
+                                            )}
+
+                                            {categoryFieldTypes[key] === "number" && (
+                                                <input
+                                                    type="number"
+                                                    className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    value={categoryDetails[key] || ""}
+                                                    onChange={(e) => handleCategoryDetailChange(e, key)}
+                                                    placeholder={`Enter ${key}`}
+                                                />
+                                            )}
+
+                                            {categoryFieldTypes[key] === "date" && (
+                                                <input
+                                                    type="date"
+                                                    className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    value={categoryDetails[key] || ""}
+                                                    onChange={(e) => handleCategoryDetailChange(e, key)}
+                                                />
+                                            )}
+
+                                            {categoryFieldTypes[key] === "checkbox" && (
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    checked={categoryDetails[key] || false}
+                                                    onChange={(e) =>
+                                                        setCategoryDetails({ ...categoryDetails, [key]: e.target.checked })
+                                                    }
+                                                />
+                                            )}
+
+                                            {categoryFieldTypes[key] === "radio" && (
+                                                <div>
+                                                    <label>
+                                                        <input
+                                                            type="radio"
+                                                            value="In Stock"
+                                                            checked={categoryDetails[key] === "In Stock"}
+                                                            onChange={() =>
+                                                                setCategoryDetails({ ...categoryDetails, [key]: "In Stock" })
+                                                            }
+                                                        />
+                                                        In Stock
+                                                    </label>
+                                                    <label className="ms-3">
+                                                        <input
+                                                            type="radio"
+                                                            value="Out of Stock"
+                                                            checked={categoryDetails[key] === "Out of Stock"}
+                                                            onChange={() =>
+                                                                setCategoryDetails({ ...categoryDetails, [key]: "Out of Stock" })
+                                                            }
+                                                        />
+                                                        Out of Stock
+                                                    </label>
+                                                </div>
+                                            )}
+
+                                            {categoryFieldTypes[key] === "select" && (
+                                                <select
+                                                    className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    value={categoryDetails[key] || ""}
+                                                    onChange={(e) => handleCategoryDetailChange(e, key)}
+                                                >
+                                                    <option value="">Select {key}</option>
+                                                    {categorySelectOptions[key]?.map((option) => (
+                                                        <option key={option} value={option}>
+                                                            {option}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+
 
                             {/* Stock Amount */}
                             <div>
@@ -271,9 +511,9 @@ const AdminProductPunching = () => {
                             </div>
 
                             {/* Variants */}
-                            <div>
+                            {/* <div>
                                 <label className="block text-gray-300 font-semibold">Variants</label>
-                                <div className="flex space-x-2 items-center">
+                                 <div className="flex space-x-2 items-center">
                                     <input
                                         type="text"
                                         value={variantName}
@@ -295,7 +535,7 @@ const AdminProductPunching = () => {
                                     >
                                         Add
                                     </button>
-                                </div>
+                                </div> 
                                 <div className="mt-2 flex flex-wrap">
                                     {variants.map((variant, index) => (
                                         <span key={index} className="bg-gray-600 text-white px-3 py-1 rounded-full mr-2 flex items-center">
@@ -310,7 +550,7 @@ const AdminProductPunching = () => {
                                         </span>
                                     ))}
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* Main Image Upload */}
                             <div>

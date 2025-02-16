@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import AdminEditProductModal from './AdminEditProductModal';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { adminDeleteProduct } from '../../Apis/main';
+import { adminDeleteProduct } from '../../services/api';
 
 // Main Table Component
 const AdminProductsTable = () => {

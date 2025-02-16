@@ -6,7 +6,7 @@ import BigCard from '../../Components/Main/Common/BigCard';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { removeItemFromCart, updateCartItem, fetchCart } from '../../Apis/main';
+import { removeItemFromCart, updateCartItem, fetchCart } from '../../services/api';
 
 // Dummy data for cart items
 const cartItems = [

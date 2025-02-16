@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { captureUserData } from '../../Apis/main';
+import { captureUserData } from '../../services/api';
 
 const UserDetailsPage = () => {
   const [formData, setFormData] = useState({

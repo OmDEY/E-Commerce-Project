@@ -4,7 +4,7 @@ import './Navbar.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { SearchContext } from '../../../Context/ContextProvider';
 import axios from 'axios';
-import { fetchUserById } from '../../../Apis/main';
+import { fetchUserById } from '../../../services/api';
 
 const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);

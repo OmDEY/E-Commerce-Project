@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { FaEdit, FaPlus, FaTrash, FaSyncAlt } from 'react-icons/fa';
 import UserModal from './UserModal';
 import axios from 'axios';
-import { fetchAllUsers } from '../../Apis/main';
+import { fetchAllUsers } from '../../services/api';
 
 // Sample data (In practice, fetch from API)
 const initialUsers = [

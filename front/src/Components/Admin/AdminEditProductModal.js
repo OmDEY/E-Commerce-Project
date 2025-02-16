@@ -5,7 +5,7 @@ import { ClipLoader } from 'react-spinners'; // Add a loader, e.g., from react-s
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Form, useForm } from 'react-hook-form';
-import { adminUpdateProduct } from '../../Apis/main';
+import { adminUpdateProduct } from '../../services/api';
 
 const AdminEditProductModal = ({ product, isOpen, onClose, categories }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();

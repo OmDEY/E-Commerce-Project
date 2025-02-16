@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 // import productImage from './assets/product.png'; // Placeholder product image
 import { motion } from 'framer-motion'; // Import Framer Motion for animations
 import axios from 'axios';
-import { fetchCart, fetchUserById } from '../../Apis/main';
+import { fetchCart, fetchUserById } from '../../services/api';
 
 const CheckoutPage = () => {
     const [addressExists, setAddressExists] = useState(false); // Toggle between existing and new address

@@ -35,7 +35,7 @@ const AuthPage = () => {
         navigate('/auth/userDetails');
       }).catch(err => {
         console.log(err);
-        toast.error(err?.response?.data?.message);
+        toast.error(err?.response?.data?.msg);
       })
     }else{
 
@@ -48,8 +48,7 @@ const AuthPage = () => {
         toast.success('Logged in successfully');
         navigate('/');
       }).catch(err => {
-        console.log(err);
-        toast.error(err?.response?.data?.message);
+        toast.error(err?.response?.data?.msg);
       })
     }
 
@@ -58,6 +57,10 @@ const AuthPage = () => {
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
+  };
+
+  const navigateToAdmin = () => {
+    navigate('/auth/admin');
   };
 
   return (
@@ -168,6 +171,26 @@ const AuthPage = () => {
             >
               {isLogin ? 'Sign Up' : 'Login'}
             </span>
+          </p>
+        </div>
+
+        {/* Admin Login Prompt */}
+        <div className="text-center mt-6">
+          <p className="text-gray-500">
+            Are you an admin?{' '}
+            <span
+              onClick={navigateToAdmin}
+              className="text-purple-600 font-semibold cursor-pointer hover:underline"
+            >
+              Admin Login / Sign Up
+            </span>
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-gray-500">
+            &copy; {new Date().getFullYear()} ShopEase. All rights reserved.
           </p>
         </div>
       </motion.div>

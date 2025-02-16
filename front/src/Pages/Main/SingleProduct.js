@@ -5,7 +5,7 @@ import BigCard from '../../Components/Main/Common/BigCard';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { fetchProductById, submitProductReview } from '../../Apis/main';
+import { fetchProductById, submitProductReview } from '../../services/api';
 
 // Dummy product data
 const DummyProduct = {
