@@ -223,29 +223,36 @@ const AdminProductPunching = () => {
         formData.append('category', category);
         formData.append('stock', data.stock);
         formData.append('brand', brand);
-        formData.append('colors', JSON.stringify(colors));
-
+    
+        // Append colors correctly
+        colors.forEach((color, index) => {
+            formData.append(`colors[${index}]`, color);
+        });
+    
         // Add category-specific details
         Object.keys(categoryDetails).forEach((key) => {
             formData.append(`categoryDetails[${key}]`, categoryDetails[key]);
         });
-
+    
+        // Append variants
         variants.forEach((variant, index) => {
             formData.append(`variants[${index}][variantName]`, variant.variantName);
             formData.append(`variants[${index}][variantValue]`, variant.variantValue);
         });
-
+    
+        // Append main images
         mainImages.forEach(image => {
             formData.append('mainImages', image);
         });
-
+    
+        // Append additional info
         additionalInfo.forEach((info, index) => {
             formData.append(`additionalInfo[${index}][description]`, info.description);
             info.images.forEach(image => {
                 formData.append(`additionalInfo[${index}][images]`, image);
             });
         });
-
+    
         try {
             adminAddProduct(formData)
                 .then((response) => {
@@ -263,6 +270,7 @@ const AdminProductPunching = () => {
             console.error('Error:', error);
         }
     };
+    
 
     return (
         <motion.div
