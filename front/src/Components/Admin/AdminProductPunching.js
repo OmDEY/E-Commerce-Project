@@ -30,11 +30,17 @@ const AdminProductPunching = () => {
         type: ["Sneakers", "Boots", "Sandals"],
         sportType: ["Running", "Cycling", "Swimming"],
         vehicleType: ["Car", "Motorcycle", "Truck"],
+        size: ["XS", "S", "M", "L", "XL", "XXL"],
+        // material: ["Leather", "Cotton", "Polyester", "Vinyl", "Nylon"],
+        // warranty: ["1 Year", "2 Years", "3 Years"],
+        // brand: ["Nike", "Adidas", "Puma", "Reebok", "New Balance"],
+        // availability: ["In Stock", "Out of Stock"],
+        isReturnable: ["Yes", "No"],
     };
 
     const categoryFieldTypes = {
         // Common fields
-        size: "text",  // Free text input
+        size: "multi-select",  // Free text input
         material: "text", // Free text input
         warranty: "number", // Numeric input
         brand: "text", // Free text input
@@ -144,8 +150,16 @@ const AdminProductPunching = () => {
     };
 
     const handleCategoryDetailChange = (e, key) => {
-        setCategoryDetails({ ...categoryDetails, [key]: e.target.value });
+        if (categoryFieldTypes[key] === "multi-select") {
+            setCategoryDetails({
+                ...categoryDetails,
+                [key]: Array.from(e.target.selectedOptions, (option) => option.value),
+            });
+        } else {
+            setCategoryDetails({ ...categoryDetails, [key]: e.target.value });
+        }
     };
+    
 
     const handleAddColor = () => {
         if (colorInput && !colors.includes(colorInput)) {
@@ -223,28 +237,28 @@ const AdminProductPunching = () => {
         formData.append('category', category);
         formData.append('stock', data.stock);
         formData.append('brand', brand);
-    
+
         // Append colors correctly
         colors.forEach((color, index) => {
             formData.append(`colors[${index}]`, color);
         });
-    
+
         // Add category-specific details
         Object.keys(categoryDetails).forEach((key) => {
             formData.append(`categoryDetails[${key}]`, categoryDetails[key]);
         });
-    
+
         // Append variants
         variants.forEach((variant, index) => {
             formData.append(`variants[${index}][variantName]`, variant.variantName);
             formData.append(`variants[${index}][variantValue]`, variant.variantValue);
         });
-    
+
         // Append main images
         mainImages.forEach(image => {
             formData.append('mainImages', image);
         });
-    
+
         // Append additional info
         additionalInfo.forEach((info, index) => {
             formData.append(`additionalInfo[${index}][description]`, info.description);
@@ -252,7 +266,7 @@ const AdminProductPunching = () => {
                 formData.append(`additionalInfo[${index}][images]`, image);
             });
         });
-    
+
         try {
             adminAddProduct(formData)
                 .then((response) => {
@@ -270,7 +284,7 @@ const AdminProductPunching = () => {
             console.error('Error:', error);
         }
     };
-    
+
 
     return (
         <motion.div
@@ -498,6 +512,28 @@ const AdminProductPunching = () => {
                                                     ))}
                                                 </select>
                                             )}
+
+
+                                            {categoryFieldTypes[key] === "multi-select" && (
+                                                <select
+                                                    multiple
+                                                    className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    value={categoryDetails[key] || []}
+                                                    onChange={(e) =>
+                                                        setCategoryDetails({
+                                                            ...categoryDetails,
+                                                            [key]: Array.from(e.target.selectedOptions, (option) => option.value),
+                                                        })
+                                                    }
+                                                >
+                                                    {categorySelectOptions[key]?.map((option) => (
+                                                        <option key={option} value={option}>
+                                                            {option}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            )}
+
                                         </div>
                                     ))}
                                 </div>
