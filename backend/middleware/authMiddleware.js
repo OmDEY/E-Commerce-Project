@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+require('dotenv').config();
 
 // Middleware to check token
 async function authMiddleware(req, res, next) {
@@ -10,13 +11,20 @@ async function authMiddleware(req, res, next) {
 
   try {
     // Verify the token
-    const decoded = jwt.verify(token, 'your_jwt_secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Check if the token is expired
+    if (decoded.exp < Date.now() / 1000) {
+      return res.status(401).json({ msg: 'Token has expired' });
+    }
+
+    console.log(decoded);
     
     // Fetch the user from the database using the user ID in the token
-    const user = await User.findById(decoded.userId).select('-password'); // Exclude the password field
-    
+    const user = await User.findById(decoded.userId ? decoded.userId : decoded.adminId).select('-password'); // Exclude the password field
+
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(401).json({ msg: 'User not found' });
     }
 
     // Attach the user object to the req object

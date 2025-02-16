@@ -2,13 +2,39 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const emailQueue = require('../Queue/emailQueue');
+require('dotenv').config();
 
-const verifyToken = (req, res) => {
-    // If the token is valid, it will reach this point
-    res.json({
-        msg: 'Token is valid',
-        user: req.user // This is the decoded token, contains user data
-    });
+const verifyToken = async (req, res) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+        return res.status(401).json({ msg: 'No token, authorization denied' });
+    }
+
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Check if the token is expired
+        if (decoded.exp < Date.now() / 1000) {
+            return res.status(401).json({ msg: 'Token has expired' });
+        }
+
+        // Fetch the user from the database using the user ID in the token
+        const user = await User.findById(decoded.userId).select('-password'); // Exclude the password field
+
+        if (!user) {
+            return res.status(401).json({ msg: 'User not found' });
+        }
+
+        // Return the user data
+        res.json({
+            msg: 'Token is valid',
+            user
+        });
+    } catch (error) {
+        res.status(401).json({ msg: 'Token is not valid' });
+    }
 };
 
 const fetchAllUsers = async (req, res) => {
@@ -45,7 +71,7 @@ const registerUser = async (req, res) => {
         // Save user to database
         await user.save();
 
-        const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', {
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
             expiresIn: '1d',
         });
 
@@ -75,10 +101,11 @@ const loginUser = async (req, res) => {
         if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
         // Generate JWT token
-        const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ userId: user._id, token });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Server error' });
     }
 }

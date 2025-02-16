@@ -1,76 +1,27 @@
-// models/Product.js
 const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-    },
-    description: {
-        type: String,
-        required: true,
-    },
-    price: {
-        type: Number,
-        required: true,
-    },
-    category: {
-        type: String,
-        required: true,
-    },
-    stock: {
-        type: Number,
-        required: true,
-    },
-    images: {
-        type: [String], // Array of image URLs
-        default: [],
-    },
-    rating: {
-        type: Number,
-        default: 0,
-    },
-    brand: {
-        type: String,
-        // required: true,
-    },
-    colors: {
-        type: [String],
-        default: [],
-    },
-    variants: [
-        {
-            variantName: {
-                type: String,
-                default: '',
-                // required: true,
-            },
-            variantValue: {
-                type: String,
-                default: '',
-                // required: true,
-            },
-        }
-    ],
-    additionalInfo: [
-        {
-            description: {
-                type: String,
-                default: '',
-                // required: true,
-            },
-            images: {
-                type: [String], // Array of additional image URLs
-                default: [],
-            },
-        },
-    ],
-    reviews: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'UserReview', // Reference to the UserReview model
-        }
-    ],
+const VariantSchema = new mongoose.Schema({
+    variantName: { type: String, required: true },
+    variantValue: { type: String, required: true }
+});
+
+const AdditionalInfoSchema = new mongoose.Schema({
+    description: { type: String, required: true },
+    images: [{ type: String }] // Array of image URLs
+});
+
+const ProductSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    price: { type: Number, required: true },
+    category: { type: String, required: true },
+    stock: { type: Number, required: true },
+    brand: { type: String, required: true },
+    colors: [{ type: String }],
+    categoryDetails: { type: mongoose.Schema.Types.Mixed }, // Dynamic object for category-specific details
+    variants: [VariantSchema],
+    mainImages: [{ type: String }], // Array of image URLs
+    additionalInfo: [AdditionalInfoSchema]
 }, { timestamps: true });
 
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model('Product', ProductSchema);
