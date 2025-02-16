@@ -25,12 +25,13 @@ const uploadImageToCloudinary = (file) => {
 // Route handler to add product
 const addProduct = async (req, res) => {
     try {
+        const { title, description, price, category, stock, additionalInfo, brand, colors } = req.body;
 
-        const { title, description, price, category, stock, additionalInfo, brand } = req.body;
+        // Ensure colors is an array
+        const colorsArray = Array.isArray(colors) ? colors : JSON.parse(colors || "[]");
 
         // Handle main images
         const mainImagesFiles = req.files.filter(file => file.fieldname === 'mainImages');
-
         const mainImagesPromises = mainImagesFiles.map(file => uploadImageToCloudinary(file));
         const mainImages = await Promise.all(mainImagesPromises);
 
@@ -45,11 +46,11 @@ const addProduct = async (req, res) => {
             };
         });
 
-        const additionalImages = '';
-
-        if(additionalImagesPromises) {
+        let additionalImages = [];
+        if (additionalImagesPromises) {
             additionalImages = await Promise.all(additionalImagesPromises);
         }
+
         // Create a new product instance
         const product = new Product({
             title,
@@ -59,6 +60,7 @@ const addProduct = async (req, res) => {
             stock,
             images: mainImages,
             brand,
+            colors: colorsArray,  // ✅ Save colors array in DB
             additionalInfo: additionalImages ? additionalImages : [],
         });
 
@@ -71,6 +73,7 @@ const addProduct = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 
 const getProducts = async (req, res) => {
     try {
