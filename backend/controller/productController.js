@@ -77,10 +77,14 @@ const addProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 20;
         const totalProducts = await Product.countDocuments();
-        const products = await Product.find().sort({ createdAt: -1 }).limit(limit).skip((page - 1) * limit);
+        const products = await Product.find()
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip((page - 1) * limit)
+            .exec();
         return res.status(200).json({ products, totalProducts });
     } catch (error) {
         console.error(error);
