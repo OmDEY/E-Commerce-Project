@@ -85,7 +85,7 @@ const AdminProductsTable = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map((product, index) => (
+                            {products?.map((product, index) => (
                                 <motion.tr
                                     key={product._id}
                                     whileHover={{ scale: 1.02 }}
